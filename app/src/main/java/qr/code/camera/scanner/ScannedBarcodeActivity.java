@@ -243,8 +243,8 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
         for (int i=0; i<rect.size(); i++) {
             canvas.drawRect(rect.get(i).left, rect.get(i).top, rect.get(i).right, rect.get(i).bottom, paint);
+
         }
-//        canvas.drawRect(0, 0, 50, 50, paint);
 
     }
 
