@@ -30,8 +30,12 @@ import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.android.gms.vision.text.Line;
+import com.google.android.gms.vision.text.TextBlock;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.os.Bundle;
 
@@ -151,7 +155,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
-                Toast.makeText(getApplicationContext(), "To prevent memory leaks barcode scanner has been stopped", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Barcode Scanner Released successfully", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -168,7 +172,6 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
 
                             if (barcodes.valueAt(0).email != null) {
-                                txtBarcodeValue.removeCallbacks(null);
                                 isEmail = true;
                             } else {
                                 isEmail = false;
@@ -180,18 +183,34 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                             txtBarcodeValue.setText(intentData);
 
 
-                            final Rect recto = barcodes.valueAt(0).getBoundingBox();
-                            RectF rect = new RectF(recto);
-                            rect.left = translateX(rect.left);
-                            rect.top = translateY(rect.top);
-                            rect.right = translateX(rect.right);
-                            rect.bottom = translateY(rect.bottom);
+//                            final Rect recto = barcodes.valueAt(0).getBoundingBox();
+//                            RectF rect = new RectF(recto);
+//                            rect.left = translateX(rect.left);
+//                            rect.top = translateY(rect.top);
+//                            rect.right = translateX(rect.right);
+//                            rect.bottom = translateY(rect.bottom);
 
                             Log.e("TAG", "run: former = " + mWidthScaleFactor + mHeightScaleFactor);
 
 
+                            List<RectF> rarr = new ArrayList<>();
+                            for (int i = 0; i < barcodes.size(); ++i) {
+                                final Rect recto1 = barcodes.valueAt(i).getBoundingBox();
+                                RectF rect1 = new RectF(recto1);
+                                rect1.left = translateX(rect1.left);
+                                rect1.top = translateY(rect1.top);
+                                rect1.right = translateX(rect1.right);
+                                rect1.bottom = translateY(rect1.bottom);
+                                rarr.add(rect1);
+
+                            }
+
+
+
+
+
                             canvas = holderTransparent.lockCanvas(); // get SurfaceView Canvass
-                            drawRectangle(rect);
+                            drawRectangle(rarr);
                             holderTransparent.unlockCanvasAndPost(canvas);
 
 
@@ -213,7 +232,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         holderTransparent.unlockCanvasAndPost(canvas);
     }
 
-    private void drawRectangle(RectF rect) {
+    private void drawRectangle(List<RectF> rect) {
         getCameraScaleFactor();
         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         //border's properties
@@ -221,7 +240,10 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.rgb(100, 20, 50));
         paint.setStrokeWidth(3);
-        canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint);
+
+        for (int i=0; i<rect.size(); i++) {
+            canvas.drawRect(rect.get(i).left, rect.get(i).top, rect.get(i).right, rect.get(i).bottom, paint);
+        }
 //        canvas.drawRect(0, 0, 50, 50, paint);
 
     }
