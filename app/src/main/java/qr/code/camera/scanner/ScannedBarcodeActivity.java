@@ -222,6 +222,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         paint.setColor(Color.rgb(100, 20, 50));
         paint.setStrokeWidth(3);
         canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint);
+//        canvas.drawRect(0, 0, 50, 50, paint);
 
     }
 
