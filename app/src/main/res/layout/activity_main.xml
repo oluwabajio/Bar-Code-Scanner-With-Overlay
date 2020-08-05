@@ -11,8 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="take_barcode_picture" />
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/btnScanBarcode"
@@ -21,6 +20,7 @@
         android:layout_below="@+id/btnTakePicture"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
+        android:layout_centerVertical="true"
         android:text="scan_barcode" />
 
 </RelativeLayout>

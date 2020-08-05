@@ -9,8 +9,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,6 +25,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.images.Size;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -35,6 +39,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
 
     SurfaceView surfaceView;
+    SurfaceView transparentView;
     TextView txtBarcodeValue;
     private BarcodeDetector barcodeDetector;
     private CameraSource cameraSource;
@@ -42,7 +47,11 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     Button btnAction;
     String intentData = "";
     boolean isEmail = false;
-
+    SurfaceHolder holderTransparent;
+    Canvas canvas;
+    Paint paint;
+    private float  mWidthScaleFactor;
+    private float mHeightScaleFactor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +64,8 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     private void initViews() {
         txtBarcodeValue = findViewById(R.id.txtBarcodeValue);
         surfaceView = findViewById(R.id.surfaceView);
+        transparentView = findViewById(R.id.TransparentView);
+
         btnAction = findViewById(R.id.btnAction);
 
 
@@ -73,6 +84,11 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
             }
         });
+
+
+        holderTransparent = transparentView.getHolder();
+        holderTransparent.setFormat(PixelFormat.TRANSPARENT);
+        holderTransparent.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
     private void initialiseDetectorsAndSources() {
@@ -93,15 +109,30 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+
+               surfaceView.setWillNotDraw(false);
+
                 try {
                     if (ActivityCompat.checkSelfPermission(ScannedBarcodeActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                         cameraSource.start(surfaceView.getHolder());
                         Log.e("TAG", "surfaceCreated: started" );
+
+
+
+
+
+
+
+
+
+
                     } else {
                         ActivityCompat.requestPermissions(ScannedBarcodeActivity.this, new
                                 String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
                         Log.e("TAG", "surfaceCreated: requestpemission" );
                     }
+
+
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -113,13 +144,20 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+
             }
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 cameraSource.stop();
             }
+
+
+
         });
+
+
 
 
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
@@ -164,28 +202,69 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                                 Point[] corners = barcodes.valueAt(0).cornerPoints;
                                 Log.e("TAG", "run: Size is " +corners.length);
 
-                                final Rect rect = barcodes.valueAt(0).getBoundingBox();
+                                final Rect recto = barcodes.valueAt(0).getBoundingBox();
+                                RectF rect = new RectF(recto);
                                 rect.left = translateX(rect.left);
                                 rect.top = translateY(rect.top);
                                 rect.right = translateX(rect.right);
                                 rect.bottom = translateY(rect.bottom);
-                                canvas.drawRect(rect, mRectPaint);
+//                                canvas.drawRect(rect, mRectPaint);
 
-                                // Draws a label at the bottom of the barcode indicate the barcode value that was detected.
-                                canvas.drawText(barcode.rawValue, rect.left, rect.bottom, mTextPaint)
-
-
-                                Canvas canvas = surfaceView.getHolder().lockCanvas(null);
-                                Paint myPaint = new Paint();
-                                myPaint.setStyle(Paint.Style.STROKE);
-                                myPaint.setColor(Color.rgb(0, 0, 0));
-                                myPaint.setStrokeWidth(10);
-
-                                for (Point element: corners) {
-                                    Log.e("TAG", "run: "+ element.x + " y = "+ element.y);
-                                    canvas.drawCircle(element.x, element.y, 1, myPaint);
-                                }
+                                Log.e("TAG", "run: former = "+mWidthScaleFactor +mHeightScaleFactor );
+//
+//                                // Draws a label at the bottom of the barcode indicate the barcode value that was detected.
+//                                canvas.drawText(barcode.rawValue, rect.left, rect.bottom, mTextPaint)
+//
+//
+//                                Canvas canvas = surfaceView.getHolder().lockCanvas(null);
+//                                Paint myPaint = new Paint();
+//                                myPaint.setStyle(Paint.Style.STROKE);
+//                                myPaint.setColor(Color.rgb(0, 0, 0));
+//                                myPaint.setStrokeWidth(10);
+//
+//                                for (Point element: corners) {
+//                                    Log.e("TAG", "run: "+ element.x + " y = "+ element.y);
+//                                    canvas.drawCircle(element.x, element.y, 1, myPaint);
+//                                }
                                // canvas.drawRect(corners[0], corners[1],corners[2], corners[3], myPaint);
+
+
+//                                Canvas canvas = surfaceView.getHolder().lockCanvas();
+//                                if (canvas == null) {
+//                                    Log.e("TAG", "Cannot draw onto the canvas as it's null");
+//                                } else {
+//                                    Log.e("TAG", "doing it");
+//                                    Paint myPaint = new Paint();
+//                                    myPaint.setColor(Color.rgb(100, 20, 50));
+//                                    myPaint.setStrokeWidth(10);
+//                                    myPaint.setStyle(Paint.Style.STROKE);
+//                                    canvas.drawRect(100, 100, 200, 200, myPaint);
+//
+//                                    surfaceView.getHolder().unlockCanvasAndPost(canvas);
+//                                }
+
+
+
+                                canvas = holderTransparent.lockCanvas();
+                                canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+                                //border's properties
+                                paint = new Paint();
+                                paint.setStyle(Paint.Style.STROKE);
+                                paint.setColor(Color.rgb(100, 20, 50));
+                                paint.setStrokeWidth(3);
+                                canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint);
+
+                                Size size = cameraSource.getPreviewSize();
+                                int min = Math.min(size.getWidth(), size.getHeight());
+                                int max = Math.max(size.getWidth(), size.getHeight());
+                                mWidthScaleFactor = (float) canvas.getWidth() / (float) min;
+                                mHeightScaleFactor = (float) canvas.getHeight() / (float) max;
+
+                                Log.e("TAG", "run:lkl = "+mWidthScaleFactor +mHeightScaleFactor );
+//
+
+
+                                holderTransparent.unlockCanvasAndPost(canvas);
                             }
 
 
@@ -196,6 +275,39 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
             }
         });
     }
+
+    public float translateX(float x) {
+            return scaleX(x);
+    }
+
+    /**
+     * Adjusts the y coordinate from the preview's coordinate system to the view coordinate
+     * system.
+     */
+    public float translateY(float y) {
+        return scaleY(y);
+    }
+
+    /**
+     * Adjusts a horizontal value of the supplied value from the preview scale to the view
+     * scale.
+     */
+    public float scaleX(float horizontal) {
+        return horizontal * mWidthScaleFactor;
+    }
+
+    /**
+     * Adjusts a vertical value of the supplied value from the preview scale to the view scale.
+     */
+    public float scaleY(float vertical) {
+        return vertical * mHeightScaleFactor;
+    }
+
+
+
+
+
+
 
 
     @Override

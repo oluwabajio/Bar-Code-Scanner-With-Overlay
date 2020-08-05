@@ -25,7 +25,7 @@ public class CameraPreviewView extends SurfaceView {
 
     @Override
     protected void onDraw(Canvas canvas){
-        canvas.drawRect(new Rect(10,10,200,200), rectanglePaint);
+      //  canvas.drawRect(new Rect(10,10,200,200), rectanglePaint);
         Log.w(this.getClass().getName(), "On Draw Called");
     }
 }

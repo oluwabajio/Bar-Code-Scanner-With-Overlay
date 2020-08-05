@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".EmailActivity"></activity>
-        <activity android:name=".ScannedBarcodeActivity" />
+        <activity android:name=".ScannedBarcodeActivity"
+            android:exported="true"/>
         <activity android:name=".PictureBarcodeActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
