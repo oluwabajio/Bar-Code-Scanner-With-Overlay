@@ -92,7 +92,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
     private void initialiseDetectorsAndSources() {
 
-        Toast.makeText(getApplicationContext(), "Barcode scanner started", Toast.LENGTH_SHORT).show();
+
 
         barcodeDetector = new BarcodeDetector.Builder(this)
                 .setBarcodeFormats(Barcode.ALL_FORMATS)
@@ -119,6 +119,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                 try {
                     if (ActivityCompat.checkSelfPermission(ScannedBarcodeActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                         cameraSource.start(barcodeSurfaceView.getHolder());
+                        Toast.makeText(getApplicationContext(), "Barcode scanner started", Toast.LENGTH_SHORT).show();
                         Log.e("TAG", "surfaceCreated: started");
 
 
@@ -248,6 +249,9 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Get
+     * */
     private void getCameraScaleFactor() {
         Size size = cameraSource.getPreviewSize();
         int min = Math.min(size.getWidth(), size.getHeight());
