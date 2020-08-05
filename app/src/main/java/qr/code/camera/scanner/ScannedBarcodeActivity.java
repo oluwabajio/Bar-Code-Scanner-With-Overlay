@@ -38,19 +38,19 @@ import android.os.Bundle;
 public class ScannedBarcodeActivity extends AppCompatActivity {
 
 
-    SurfaceView surfaceView;
-    SurfaceView transparentView;
-    TextView txtBarcodeValue;
+    private SurfaceView barcodeSurfaceView;
+    private SurfaceView transparentView;
+    private TextView txtBarcodeValue;
     private BarcodeDetector barcodeDetector;
     private CameraSource cameraSource;
     private static final int REQUEST_CAMERA_PERMISSION = 201;
-    Button btnAction;
+    private Button btnShowBarcodeValue;
     String intentData = "";
-    boolean isEmail = false;
+    boolean isEmail, isPhone, isUrl;
     SurfaceHolder holderTransparent;
     Canvas canvas;
     Paint paint;
-    private float  mWidthScaleFactor;
+    private float mWidthScaleFactor;
     private float mHeightScaleFactor;
 
     @Override
@@ -58,28 +58,27 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanned_barcode);
 
-        initViews();
+        initViews(); //initialize all views
+        initListeners();
+    }
+
+    private void initListeners() {
+        btnShowBarcodeValue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (intentData.length() > 0) {
+                    Toast.makeText(ScannedBarcodeActivity.this, "Scanned Text is " + intentData, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
     }
 
     private void initViews() {
-        txtBarcodeValue = findViewById(R.id.txtBarcodeValue);
-        surfaceView = findViewById(R.id.surfaceView);
-        transparentView = findViewById(R.id.TransparentView);
-
-        btnAction = findViewById(R.id.btnAction);
-
-
-        btnAction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (intentData.length() > 0) {
-                    Toast.makeText(ScannedBarcodeActivity.this, "Scanned Text is "+ intentData, Toast.LENGTH_LONG).show();
-                }
-
-
-            }
-        });
+        txtBarcodeValue = findViewById(R.id.txt_BarcodeValue);
+        barcodeSurfaceView = findViewById(R.id.barCode_surfaceView);
+        transparentView = findViewById(R.id.transparent_SurfaceView);
+        btnShowBarcodeValue = findViewById(R.id.btn_show_bar_code_value);
 
 
         holderTransparent = transparentView.getHolder();
@@ -95,44 +94,40 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                 .setBarcodeFormats(Barcode.ALL_FORMATS)
                 .build();
 
+        if (!barcodeDetector.isOperational()) {
+            Toast.makeText(this, "Could not set up the detector!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         cameraSource = new CameraSource.Builder(this, barcodeDetector)
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
-                .setRequestedPreviewSize(1920,1080)
+                .setRequestedPreviewSize(1920, 1080)
                 .setAutoFocusEnabled(true)
                 .setRequestedFps(2.0f)
                 .build();
 
-        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+        barcodeSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
 
-               surfaceView.setWillNotDraw(false);
+                barcodeSurfaceView.setWillNotDraw(false);
 
                 try {
                     if (ActivityCompat.checkSelfPermission(ScannedBarcodeActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        cameraSource.start(surfaceView.getHolder());
-                        Log.e("TAG", "surfaceCreated: started" );
-
-
-
-
-
-
-
-
+                        cameraSource.start(barcodeSurfaceView.getHolder());
+                        Log.e("TAG", "surfaceCreated: started");
 
 
                     } else {
                         ActivityCompat.requestPermissions(ScannedBarcodeActivity.this, new
                                 String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-                        Log.e("TAG", "surfaceCreated: requestpemission" );
+                        Log.e("TAG", "surfaceCreated: requestpemission");
                     }
-
 
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.e("TAG", "surfaceCreated: "+ e.getMessage() );
+                    Log.e("TAG", "surfaceCreated: " + e.getMessage());
                 }
 
 
@@ -150,10 +145,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
             }
 
 
-
         });
-
-
 
 
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
@@ -166,9 +158,8 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
 
-             //   Log.e("TAG", "receiving: " );
-                if (barcodes.size() != 0) {
 
+                if (barcodes.size() != 0) {
 
                     txtBarcodeValue.post(new Runnable() {
 
@@ -178,102 +169,72 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
                             if (barcodes.valueAt(0).email != null) {
                                 txtBarcodeValue.removeCallbacks(null);
-                                intentData = barcodes.valueAt(0).email.address;
-                                txtBarcodeValue.setText(intentData);
                                 isEmail = true;
-                                btnAction.setText("ADD CONTENT TO THE MAIL");
-                                Point[] corners = barcodes.valueAt(0).cornerPoints;
-                                Log.e("TAG", "run: Size is " +corners.length);
-                                for (Point element: corners) {
-                                    Log.e("TAG", "run: "+ element.x + " y = "+ element.y);
-                                }
-
-
                             } else {
                                 isEmail = false;
-                                btnAction.setText("LAUNCH URL");
-                                intentData = barcodes.valueAt(0).displayValue;
-                                txtBarcodeValue.setText(intentData);
-
-                                Point[] corners = barcodes.valueAt(0).cornerPoints;
-                                Log.e("TAG", "run: Size is " +corners.length);
-
-                                final Rect recto = barcodes.valueAt(0).getBoundingBox();
-                                RectF rect = new RectF(recto);
-                                rect.left = translateX(rect.left);
-                                rect.top = translateY(rect.top);
-                                rect.right = translateX(rect.right);
-                                rect.bottom = translateY(rect.bottom);
-//                                canvas.drawRect(rect, mRectPaint);
-
-                                Log.e("TAG", "run: former = "+mWidthScaleFactor +mHeightScaleFactor );
-//
-//                                // Draws a label at the bottom of the barcode indicate the barcode value that was detected.
-//                                canvas.drawText(barcode.rawValue, rect.left, rect.bottom, mTextPaint)
-//
-//
-//                                Canvas canvas = surfaceView.getHolder().lockCanvas(null);
-//                                Paint myPaint = new Paint();
-//                                myPaint.setStyle(Paint.Style.STROKE);
-//                                myPaint.setColor(Color.rgb(0, 0, 0));
-//                                myPaint.setStrokeWidth(10);
-//
-//                                for (Point element: corners) {
-//                                    Log.e("TAG", "run: "+ element.x + " y = "+ element.y);
-//                                    canvas.drawCircle(element.x, element.y, 1, myPaint);
-//                                }
-                               // canvas.drawRect(corners[0], corners[1],corners[2], corners[3], myPaint);
-
-
-//                                Canvas canvas = surfaceView.getHolder().lockCanvas();
-//                                if (canvas == null) {
-//                                    Log.e("TAG", "Cannot draw onto the canvas as it's null");
-//                                } else {
-//                                    Log.e("TAG", "doing it");
-//                                    Paint myPaint = new Paint();
-//                                    myPaint.setColor(Color.rgb(100, 20, 50));
-//                                    myPaint.setStrokeWidth(10);
-//                                    myPaint.setStyle(Paint.Style.STROKE);
-//                                    canvas.drawRect(100, 100, 200, 200, myPaint);
-//
-//                                    surfaceView.getHolder().unlockCanvasAndPost(canvas);
-//                                }
-
-
-
-                                canvas = holderTransparent.lockCanvas();
-                                canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-                                //border's properties
-                                paint = new Paint();
-                                paint.setStyle(Paint.Style.STROKE);
-                                paint.setColor(Color.rgb(100, 20, 50));
-                                paint.setStrokeWidth(3);
-                                canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint);
-
-                                Size size = cameraSource.getPreviewSize();
-                                int min = Math.min(size.getWidth(), size.getHeight());
-                                int max = Math.max(size.getWidth(), size.getHeight());
-                                mWidthScaleFactor = (float) canvas.getWidth() / (float) min;
-                                mHeightScaleFactor = (float) canvas.getHeight() / (float) max;
-
-                                Log.e("TAG", "run:lkl = "+mWidthScaleFactor +mHeightScaleFactor );
-//
-
-
-                                holderTransparent.unlockCanvasAndPost(canvas);
                             }
+
+                            txtBarcodeValue.removeCallbacks(null);
+                            btnShowBarcodeValue.setText("Show Bar code Value");
+                            intentData = barcodes.valueAt(0).displayValue;
+                            txtBarcodeValue.setText(intentData);
+
+
+                            final Rect recto = barcodes.valueAt(0).getBoundingBox();
+                            RectF rect = new RectF(recto);
+                            rect.left = translateX(rect.left);
+                            rect.top = translateY(rect.top);
+                            rect.right = translateX(rect.right);
+                            rect.bottom = translateY(rect.bottom);
+
+                            Log.e("TAG", "run: former = " + mWidthScaleFactor + mHeightScaleFactor);
+
+
+                            canvas = holderTransparent.lockCanvas(); // get SurfaceView Canvass
+                            drawRectangle(rect);
+                            holderTransparent.unlockCanvasAndPost(canvas);
 
 
                         }
                     });
+
+                } else {
+
+                    removeRectangle();
 
                 }
             }
         });
     }
 
+    private void removeRectangle() {
+        canvas = holderTransparent.lockCanvas();
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        holderTransparent.unlockCanvasAndPost(canvas);
+    }
+
+    private void drawRectangle(RectF rect) {
+        getCameraScaleFactor();
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        //border's properties
+        paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.rgb(100, 20, 50));
+        paint.setStrokeWidth(3);
+        canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint);
+
+    }
+
+    private void getCameraScaleFactor() {
+        Size size = cameraSource.getPreviewSize();
+        int min = Math.min(size.getWidth(), size.getHeight());
+        int max = Math.max(size.getWidth(), size.getHeight());
+        mWidthScaleFactor = (float) canvas.getWidth() / (float) min;
+        mHeightScaleFactor = (float) canvas.getHeight() / (float) max;
+    }
+
     public float translateX(float x) {
-            return scaleX(x);
+        return scaleX(x);
     }
 
     /**
@@ -300,12 +261,6 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     }
 
 
-
-
-
-
-
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -315,6 +270,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         initialiseDetectorsAndSources();
 
 

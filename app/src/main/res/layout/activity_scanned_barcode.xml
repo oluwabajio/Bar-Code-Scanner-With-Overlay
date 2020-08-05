@@ -8,25 +8,25 @@
 
 
     <qr.code.camera.scanner.CameraPreviewView
-        android:id="@+id/surfaceView"
+        android:id="@+id/barCode_surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/btnAction"
+        android:layout_above="@+id/btn_show_bar_code_value"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true" />
 
     <SurfaceView
         android:layout_alignParentTop="true"
-        android:id="@+id/TransparentView"
+        android:id="@+id/transparent_SurfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/btnAction"
+        android:layout_above="@+id/btn_show_bar_code_value"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"/>
     <TextView
-        android:id="@+id/txtBarcodeValue"
+        android:id="@+id/txt_BarcodeValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -38,10 +38,10 @@
 
 
     <Button
-        android:id="@+id/btnAction"
+        android:id="@+id/btn_show_bar_code_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="ADD CONTENT IN THE MAIL" />
+        android:text="Show Scanned Value" />
 
 </RelativeLayout>

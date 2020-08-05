@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         btnTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MLKitActivity.class));
+               // startActivity(new Intent(MainActivity.this, MLKitActivity.class));
             }
         });
         btnScanBarcode.setOnClickListener(new View.OnClickListener() {
