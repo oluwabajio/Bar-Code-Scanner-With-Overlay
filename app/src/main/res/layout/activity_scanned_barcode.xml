@@ -7,7 +7,7 @@
     tools:context=".ScannedBarcodeActivity">
 
 
-    <qr.code.camera.scanner.CameraPreviewView
+    <SurfaceView
         android:id="@+id/barCode_surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,8 +17,8 @@
         android:layout_centerVertical="true" />
 
     <SurfaceView
-        android:layout_alignParentTop="true"
         android:id="@+id/transparent_SurfaceView"
+        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/btn_show_bar_code_value"
@@ -34,6 +34,20 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:text="No Barcode Detected"
         android:textColor="@android:color/white"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/txt_BarcodeValue2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:text="No Barcode Detected"
+        android:textColor="@android:color/white"
+        android:background="#8c000000"
+        android:paddingVertical="15dp"
+        android:visibility="gone"
         android:textSize="20sp" />
 
 

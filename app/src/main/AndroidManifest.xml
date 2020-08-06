@@ -22,7 +22,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ScannedBarcodeActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
