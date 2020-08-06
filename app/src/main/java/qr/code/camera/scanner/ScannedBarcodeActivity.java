@@ -81,7 +81,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         transparentSurfaceView = findViewById(R.id.transparent_SurfaceView);
         btnShowBarcodeValue = findViewById(R.id.btn_show_bar_code_value);
 
-
+        //initialize transparent surfaceview holder
         holderTransparent = transparentSurfaceView.getHolder();
         holderTransparent.setFormat(PixelFormat.TRANSPARENT);
         holderTransparent.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
@@ -211,10 +211,6 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                             removeRectangle();
                         }
                     });
-
-
-
-
 
                 }
             }
