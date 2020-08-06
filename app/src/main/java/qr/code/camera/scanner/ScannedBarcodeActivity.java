@@ -151,7 +151,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
-                Toast.makeText(getApplicationContext(), "To prevent memory leaks barcode scanner has been stopped", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Barcode scanner has been released", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -216,13 +216,11 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     private void drawRectangle(RectF rect) {
         getCameraScaleFactor();
         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-        //border's properties
         paint = new Paint();
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.rgb(100, 20, 50));
-        paint.setStrokeWidth(3);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.parseColor("#8cff0000"));
         canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint);
-//        canvas.drawRect(0, 0, 50, 50, paint);
+
 
     }
 
